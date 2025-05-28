@@ -124,6 +124,8 @@ impl Cursor for &str {
     }
 }
 
+//-------------------------------------------------------------
+
 #[cfg(feature = "ropey")]
 #[derive(Clone, Copy)]
 enum Pos {
@@ -276,5 +278,90 @@ mod ropey_test {
         }
         assert_eq!(cursor.offset(), 0);
         assert_eq!(offset, 0);
+    }
+}
+
+//-------------------------------------------------------------
+
+#[cfg(feature = "ropey2")]
+pub mod ropey2cursor {
+    use super::{Cursor, IntoCursor};
+    use ropey2::{ChunkCursor, Rope, RopeSlice};
+
+    impl Cursor for ChunkCursor<'_> {
+        fn chunk(&self) -> &[u8] {
+            ChunkCursor::chunk(self).as_bytes()
+        }
+
+        fn advance(&mut self) -> bool {
+            self.next()
+        }
+
+        fn backtrack(&mut self) -> bool {
+            self.prev()
+        }
+
+        fn utf8_aware(&self) -> bool {
+            true
+        }
+
+        fn total_bytes(&self) -> Option<usize> {
+            None
+        }
+
+        fn offset(&self) -> usize {
+            self.byte_offset()
+        }
+    }
+
+    impl<'a> IntoCursor for &'a Rope {
+        type Cursor = ChunkCursor<'a>;
+
+        fn into_cursor(self) -> Self::Cursor {
+            self.chunk_cursor()
+        }
+    }
+
+    impl<'a> IntoCursor for RopeSlice<'a> {
+        type Cursor = ChunkCursor<'a>;
+
+        fn into_cursor(self) -> Self::Cursor {
+            self.chunk_cursor()
+        }
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::*;
+
+        #[test]
+        fn smoke_test() {
+            let rope = Rope::from_str("abc");
+            let mut cursor = rope.into_cursor();
+            assert_eq!(Cursor::chunk(&cursor), "abc".as_bytes());
+            assert!(!cursor.advance());
+            assert_eq!(Cursor::chunk(&cursor), "abc".as_bytes());
+            assert!(!cursor.backtrack());
+            assert_eq!(Cursor::chunk(&cursor), "abc".as_bytes());
+            let rope = Rope::from("abc".repeat(5000));
+            let mut cursor = rope.into_cursor();
+            let mut offset = 0;
+            loop {
+                assert_eq!(cursor.offset(), offset);
+                offset += Cursor::chunk(&cursor).len();
+                if !cursor.advance() {
+                    break;
+                }
+            }
+            loop {
+                offset -= Cursor::chunk(&cursor).len();
+                assert_eq!(cursor.offset(), offset);
+                if !cursor.backtrack() {
+                    break;
+                }
+            }
+            assert_eq!(cursor.offset(), 0);
+            assert_eq!(offset, 0);
+        }
     }
 }

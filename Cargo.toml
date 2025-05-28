@@ -20,6 +20,7 @@ memchr = "2.7"
 regex-automata = "0.4.7"
 regex-syntax = "0.8.4"
 ropey = { version = "1.6.1", default-features = false, optional = true }
+ropey2 = { package = "ropey", version = "=2.0.0-alpha.2", default-features = false, optional = true }
 
 [dev-dependencies]
 anyhow = "1.0.89"
@@ -30,3 +31,4 @@ regex-test =  "0.1.1"
 default = ["perf-inline", "ropey"]
 perf-inline = []
 ropey = ["dep:ropey"]
+ropey2 = ["dep:ropey2"]

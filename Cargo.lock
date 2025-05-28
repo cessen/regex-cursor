@@ -287,7 +287,8 @@ dependencies = [
  "regex-automata",
  "regex-syntax",
  "regex-test",
- "ropey",
+ "ropey 1.6.1",
+ "ropey 2.0.0-alpha.2",
 ]
 
 [[package]]
@@ -315,6 +316,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93411e420bcd1a75ddd1dc3caf18c23155eda2c090631a85af21ba19e97093b5"
 dependencies = [
  "smallvec",
+ "str_indices",
+]
+
+[[package]]
+name = "ropey"
+version = "2.0.0-alpha.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b578e097516cdb65f10ac5c70575477bb2f3aa1d31d1755ffa155502562cba9c"
+dependencies = [
  "str_indices",
 ]
 
